@@ -1,6 +1,7 @@
 var child_process = require('child_process');
 var path = require('path');
 var linter = require('lint-plus');
+var colors = require('colors');
 
 exports.name = 'lint [dir or filename]';
 exports.desc = 'check the code style of your project';
@@ -59,7 +60,7 @@ exports.run = function(argv, cli, env) {
     });
     --------------------------api end ----------------------*/
 
-    var paramStr = process.title.replace('xg lint ', '').replace(/\[[^\[\]]+\]$/, '');
+    var paramStr = process.title.replace('xg lint ', '').replace(/\[[^\[]+$/, '');
 
     var lintCheck = child_process.exec(path.join(__dirname, '../lint-plus/bin/lint-plus ') + paramStr);
 
@@ -75,7 +76,14 @@ exports.run = function(argv, cli, env) {
                 if (!logInfo) {
                     return true;
                 }
+
+                if (logInfo.match(/\smessages?\)$/)) {
+                    fis.log.warn(logInfo);
+                    return true;
+                }
+
                 var level = logInfo.split(/\s+/)[0].toLowerCase();
+
                 switch (level) {
                     case 'error':
                     case 'warn':
@@ -83,7 +91,7 @@ exports.run = function(argv, cli, env) {
                         console.log('     ' + logInfo);
                         break;
                     default:
-                        fis.log.warn(logInfo);
+                        fis.log.info(logInfo);
 
                 }
             });
