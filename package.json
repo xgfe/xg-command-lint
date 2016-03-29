@@ -1,0 +1,27 @@
+{
+  "name": "xg-command-lint",
+  "version": "1.0.0",
+  "description": "a bridge for lint-puls",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xgfe/xg-command-lint.git"
+  },
+  "keywords": [
+    "fis3",
+    "xg",
+    "lint"
+  ],
+  "author": "xgfe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xgfe/xg-command-lint/issues"
+  },
+  "homepage": "https://github.com/xgfe/xg-command-lint#readme",
+  "dependencies": {
+    "lint-plus": "^0.2.2"
+  }
+}
