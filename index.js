@@ -21,48 +21,72 @@ exports.run = function(argv, cli, env) {
         return cli.help(exports.name, exports.options);
     }
 
-    /*---------------------api start--------------------
+    // 显示版本信息
+    if (argv.v || argv.version) {
+        var lintVersion = child_process.execSync(path.join(__dirname, '../lint-plus/bin/lint-plus -v'));
+        fis.log.info(lintVersion.toString());
+        return true;
+    }
+
     var options = {
-        _: ['.']
+        _: argv._.slice(1)
     };
 
-    console.log(argv);
-
+    // set configfile
     if ( typeof argv.c === 'string') {
         options.config = argv.c;
     }
-    console.log(options);
 
-    linter.check(options, function (sucess, json, errors, errorFile, totalFile) {
+    var lintStream = linter.check(options, function (sucess, json, errors, errorFile, totalFile) {
         if (sucess) {
-            fis.log.info('Congratulations! You are the code master!')
+            fis.log.info(colors.green('Congratulations! You are the code master!'));
             process.exit(1);
         }
 
-        var messages;
-
-        for(var i in json){
-            messages = json[i];
-            fis.log.notice('file %s has problem.',i);
-            messages.forEach(function (message) {
-                //console.log('lint type: %s',message.type);
-                //console.log('problem severity: %s',message.severity);//2-error,1-warn,0-info
-                //console.log('line: %s',message.line);
-                //console.log('col: %s',message.col);
-                //console.log('error message: %s',message.message);
-                //console.log('rule: %s',message.rule);
-
-                fis.log[SERVERITY_ARR[message.severity]](LOG_TPL, message.type, message.line, message.col, message.message, message.rule);
-            });
-        }
-
+        fis.log.warn(
+            colors.red('Linter found %s problem%s in %s of %s file%s.'),
+            errors,
+            errors > 1 ? 's' : '',
+            errorFile,
+            totalFile, totalFile > 1 ? 's' : ''
+        );
         process.exit(1);
     });
-    --------------------------api end ----------------------*/
 
-    var paramStr = process.title.replace('xg lint ', '').replace(/\[[^\[]+$/, '');
+    lintStream.on('lint', function(filepath, messages) {
+        if (messages.length) {
+            fis.log.warn(
+                '%s (%s message%s)',
+                colors.yellow(filepath),
+                messages.length,
+                messages.length>1?'s':''
+            );
 
-    var lintCheck = child_process.exec(path.join(__dirname, '../lint-plus/bin/lint-plus ') + paramStr);
+            messages.forEach(function (message) {
+                var type = (function () {
+                    var temp = message.severity;
+                    if(temp === 2){
+                        return colors.red("ERROR");
+                    }
+                    if(temp === 1){
+                        return colors.yellow('WARN ');
+                    }
+                    return colors.green('INFO ');
+                })();
+                console.log(
+                    '     %s line %s, col %s: %s  %s',
+                    type,
+                    message.line,
+                    message.col,
+                    message.message,
+                    colors.gray(message.rule)
+                );
+            });
+        }
+    });
+
+    /*var paramStr = process.title.replace('xg lint ', '').replace(/\[[^\[]+$/, '');
+
 
     // 显示版本信息
     if (argv.v || argv.version) {
@@ -71,7 +95,7 @@ exports.run = function(argv, cli, env) {
         });
     } else {
         lintCheck.stdout.on('data', function (chunk) {
-            var logInfoArr = chunk.toString('utf-8').replace(/^\s+/, '').split(/\n+\s*/);
+            var logInfoArr = chunk.toString('utf-8').replace(/^\s+/, '').split(/\n+\s*!/);
             logInfoArr.forEach(function (logInfo, index, arr) {
                 if (!logInfo) {
                     return true;
@@ -102,5 +126,5 @@ exports.run = function(argv, cli, env) {
         fis.log.error(chunk.toString('utf-8').replace(/^\s+/, ''));
     });
 
-    lintCheck.on('close', function () {process.exit(1)});
+    lintCheck.on('close', function () {process.exit(1)});*/
 };

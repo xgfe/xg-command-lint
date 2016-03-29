@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/xgfe/xg-command-lint#readme",
   "dependencies": {
-    "lint-plus": "^0.3.2"
+    "lint-plus": "^0.4.0",
+    "colors": "^1.1.2"
   }
 }
