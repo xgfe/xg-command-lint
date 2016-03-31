@@ -57,7 +57,7 @@ exports.run = function(argv, cli, env) {
         if (messages.length) {
             fis.log.warn(
                 '%s (%s message%s)',
-                colors.yellow(filepath),
+                colors.yellow(filepath.replace(env.cwd, '')),
                 messages.length,
                 messages.length>1?'s':''
             );
