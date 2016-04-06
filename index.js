@@ -23,7 +23,7 @@ exports.run = function(argv, cli, env) {
 
     // 显示版本信息
     if (argv.v || argv.version) {
-        var lintVersion = child_process.execSync(path.join(__dirname, '../lint-plus/bin/lint-plus -v'));
+        var lintVersion = child_process.execSync(path.join(require.resolve('lint-plus'), '../bin/lint-plus') + ' -v');
         fis.log.info(lintVersion.toString());
         return true;
     }
@@ -37,7 +37,7 @@ exports.run = function(argv, cli, env) {
         options.config = argv.c;
     }
 
-    var lintStream = linter.check(options, function (sucess, json, errors, errorFile, totalFile) {
+    lintCheck(options, function(sucess, json, errors, errorFile, totalFile) {
         if (sucess) {
             fis.log.info(colors.green('Congratulations! You are the code master!'));
             process.exit(1);
@@ -52,12 +52,32 @@ exports.run = function(argv, cli, env) {
         );
         process.exit(1);
     });
+};
+
+/**
+ *
+ * @param {object}   options    监测配置
+ *      @param {array}      _           待检测的文件或者目录
+ *      @param {string}     config      配置文件路径
+ * @param {function} callback   回调函数, 监测完成后调用
+ *      @param {boolean}    success     是否有ERROR级别的代码违规
+ *      @param {object}     json        以文件名为key, 存储各文件代码违规的array of object
+ *      @param {number}     errors      ERROR级别代码违规总数
+ *      @param {number}     errorFile   有ERROR级别代码违规的文件数
+ *      @param {number}     totalFile   总共监测的文件数
+ */
+function lintCheck(options, callback) {
+    var lintStream = linter.check(options, function (sucess, json, errors, errorFile, totalFile) {
+        if (typeof callback === 'function') {
+            callback(sucess, json, errors, errorFile, totalFile);
+        }
+    });
 
     lintStream.on('lint', function(filepath, messages) {
         if (messages.length) {
             fis.log.warn(
                 '%s (%s message%s)',
-                colors.yellow(filepath.replace(env.cwd, '')),
+                colors.yellow(filepath.replace(fis.project.getProjectPath(), '')),
                 messages.length,
                 messages.length>1?'s':''
             );
@@ -84,47 +104,6 @@ exports.run = function(argv, cli, env) {
             });
         }
     });
-
-    /*var paramStr = process.title.replace('xg lint ', '').replace(/\[[^\[]+$/, '');
-
-
-    // 显示版本信息
-    if (argv.v || argv.version) {
-        lintCheck.stdout.on('data', function (chunk) {
-            console.log('\n ' + chunk.toString('utf-8'));
-        });
-    } else {
-        lintCheck.stdout.on('data', function (chunk) {
-            var logInfoArr = chunk.toString('utf-8').replace(/^\s+/, '').split(/\n+\s*!/);
-            logInfoArr.forEach(function (logInfo, index, arr) {
-                if (!logInfo) {
-                    return true;
-                }
-
-                if (logInfo.match(/\smessages?\)$/)) {
-                    fis.log.warn(logInfo);
-                    return true;
-                }
-
-                var level = logInfo.split(/\s+/)[0].toLowerCase();
-
-                switch (level) {
-                    case 'error':
-                    case 'warn':
-                    case 'info':
-                        console.log('     ' + logInfo);
-                        break;
-                    default:
-                        fis.log.info(logInfo);
-
-                }
-            });
-        });
-    }
-
-    lintCheck.stderr.on('data', function (chunk) {
-        fis.log.error(chunk.toString('utf-8').replace(/^\s+/, ''));
-    });
-
-    lintCheck.on('close', function () {process.exit(1)});*/
 };
+
+exports.check = lintCheck;
