@@ -40,7 +40,7 @@ exports.run = function(argv, cli, env) {
     lintCheck(options, function(sucess, json, errors, errorFile, totalFile) {
         if (sucess) {
             fis.log.info(colors.green('Congratulations! You are the code master!'));
-            process.exit(1);
+            process.exit(0);
         }
 
         fis.log.warn(
