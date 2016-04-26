@@ -1,6 +1,6 @@
 {
   "name": "xg-command-lint",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "a bridge for lint-puls",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/xgfe/xg-command-lint#readme",
   "dependencies": {
-    "lint-plus": "^0.5.1",
     "colors": "^1.1.2"
   }
 }
