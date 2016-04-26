@@ -37,16 +37,18 @@ exports.run = function(argv, cli, env) {
         options.config = argv.c;
     }
 
-    lintCheck(options, function(sucess, json, errors, errorFile, totalFile) {
+    lintCheck(options, function(sucess, json, errors, warnings ,errorFile, totalFile) {
         if (sucess) {
             fis.log.info(colors.green('Congratulations! You are the code master!'));
             process.exit(0);
         }
 
         fis.log.warn(
-            colors.red('Linter found %s problem%s in %s of %s file%s.'),
+            colors.red('Linter found %s errors%s,%s warning%s in %s of %s file%s.'),
             errors,
             errors > 1 ? 's' : '',
+            warnings,
+            warnings > 1 ? 's' : '',
             errorFile,
             totalFile, totalFile > 1 ? 's' : ''
         );
@@ -63,13 +65,14 @@ exports.run = function(argv, cli, env) {
  *      @param {boolean}    success     是否有ERROR级别的代码违规
  *      @param {object}     json        以文件名为key, 存储各文件代码违规的array of object
  *      @param {number}     errors      ERROR级别代码违规总数
- *      @param {number}     errorFile   有ERROR级别代码违规的文件数
+ *      @param {number}     warnings    WARNING级别代码违规总数
+ *      @param {number}     errorFile   有问题代码违规的文件数
  *      @param {number}     totalFile   总共监测的文件数
  */
 function lintCheck(options, callback) {
-    var lintStream = linter.check(options, function (sucess, json, errors, errorFile, totalFile) {
+    var lintStream = linter.check(options, function (sucess, json, errors ,warnings , errorFile, totalFile) {
         if (typeof callback === 'function') {
-            callback(sucess, json, errors, errorFile, totalFile);
+            callback(sucess, json, errors ,warnings , errorFile, totalFile);
         }
     });
 
