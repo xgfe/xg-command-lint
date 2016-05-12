@@ -8,7 +8,8 @@ exports.desc = 'check the code style of your project';
 exports.options = {
     '-c <filename>': 'specify the configuration file',
     '-v, --version': 'print the version of lint-plus',
-    '-h, --help': 'print this help message'
+    '-h, --help': 'print this help message',
+    '-f, --fix': 'fix js error code automatically'
 };
 
 const SERVERITY_ARR = ['info ', 'warn ', 'error'];
@@ -35,6 +36,9 @@ exports.run = function(argv, cli, env) {
     // set configfile
     if ( typeof argv.c === 'string') {
         options.config = argv.c;
+    }
+    if ( argv.f || argv.fix ){
+        options.fix = true;
     }
 
     lintCheck(options, function(sucess, json, errors, warnings ,errorFile, totalFile) {
